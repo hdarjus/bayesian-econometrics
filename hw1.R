@@ -1,11 +1,13 @@
-hw1 <- function (m, n, seed, set.zero = FALSE) {
+hw1 <- function (m, n, seed, ruin = FALSE) {
   # generate joint distribution
   f.joint <- matrix(runif(m*n), m, n)  # rows are Y values, columns are X values,
   # just like the bottom of page 169,
   # because in this paper they multiply with transition matrices from the right
   
-  f.joint[, ] <- 0  # set almost everything to zero to ruin the sampler
-  f.joint[m, n] <- 1  # only almost everything :)
+  if (ruin) {
+    f.joint[, ] <- 0  # set almost everything to zero to ruin the sampler
+    f.joint[m, n] <- 1  # only almost everything :)
+  }
         
   f.joint <- f.joint / sum(f.joint)  # normalize to probabilities
   #print(f.joint)
@@ -22,10 +24,10 @@ hw1 <- function (m, n, seed, set.zero = FALSE) {
   
   # initial values as marginal distributions
   f.x <- runif(n)
-  if (set.zero) f.x[-1] <- 0
+  if (ruin) f.x[-1] <- 0
   f.x <- t(f.x / sum(f.x))  # also transform to a row matrix
   f.y <- runif(m)
-  if (set.zero) f.y[-1] <- 0
+  if (ruin) f.y[-1] <- 0
   f.y <- t(f.y / sum(f.y))
   
   f.x.init <- f.x
@@ -53,3 +55,9 @@ hw1 <- function (m, n, seed, set.zero = FALSE) {
   cat(" last f.x:\n")
   print(f.x)
 }
+
+# General run
+hw1(10, 11, 42)
+
+# Ruined sampler (results in 0 distribution)
+hw1(10, 11, 42, TRUE)
