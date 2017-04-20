@@ -1,5 +1,5 @@
 B <- Inf
-B <- 5
+#B <- 5  # try commenting and uncommenting this
 n <- 20000
 
 x.vec <- rep(0,n)
