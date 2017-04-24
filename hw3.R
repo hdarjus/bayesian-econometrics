@@ -99,9 +99,8 @@ for (i in seq_len(B.n)) {
   rejects.exp[i] <- sample.reject.exp(n, B.values[i], rate)$count / n - 1
   rejects.unif[i] <- sample.reject.unif(n, B.values[i], rate)$count / n - 1
 }
-rejects.exp
-rejects.unif
 
+# warning: the plot doesn't work if rejects.exp or rejects.unif have zeros
 plot(B.values, rejects.exp, col = "blue", type = "l",
      xlim = c(-.5, B.values[B.n]+.5), ylim = c(0.005, max(c(rejects.exp, rejects.unif))),
      main = "Ratio of rejections over successes as the function of B on a log scale",
