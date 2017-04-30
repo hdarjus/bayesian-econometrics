@@ -39,11 +39,11 @@ M <- 0.92  # just to avoid using 1, it would be boring
 a <- 2
 b <- 0.42
 
-exc.meas <- rep(0, 10000)
+exc.meas <- rep(0, 1000)
 
-for (j in 1:10000) {
+for (j in 1:1000) {
   sigma2.true <- 1/rgamma(1, a, scale = b)
-  mu.true <- rnorm(m, sqrt(M*sigma2.true))
+  mu.true <- rnorm(1, m, sqrt(M*sigma2.true))
   series <- rnorm(111, mu.true, sqrt(sigma2.true))
   
   count <- 0
@@ -65,6 +65,41 @@ for (j in 1:10000) {
 hist(exc.meas)
 mean(exc.meas)
 
-# d)
+# d) and e)
+K <- 100000
+alpha <- 0.05
+# prior constants
+m <- 2
+M <- 0.92
+a <- 2
+b <- 0.42
 
+mu.true <- 2
+sigma.true <- 1.5
+series <- rnorm(111, mu.true, sqrt(sigma2.true))
 
+var.values <- matrix(rep(0, K), K, 3)
+  
+count <- 0
+for (i in seq(10, 110)) {
+  # draw K times from the posterior, slide 22
+  mean.y <- mean(series[1:i])
+  sigma2.draws <- 1/rgamma(K, a+i/2, rate=b+.5*(sum((series[1:i]-mean.y)^2)+i/(M*i+1)*(mean.y-m)^2))
+  mu.draws <- rnorm(K, (m+M*i*mean.y)/(M*i+1), sqrt(M*sigma2.draws/(M*i+1)))
+  # now sample y
+  y.post.pred <- rnorm(K, mu.draws, sqrt(sigma2.draws))
+  # VaR
+  var.hat <- quantile(y.post.pred, probs = 1-alpha)  # empirical VaR for d)
+  count <- count + (series[i+1] > var.hat)
+  
+  if (i %in% c(10, 60, 110)) {  # for e)
+    var.values[, (i+40)/50] <- qnorm(1-alpha, mu.draws, sqrt(sigma2.draws), lower.tail = T)
+  }
+  
+  #cat(i, "\n VaR:   \t", var.hat, "\n next:  \t", series[i+1], "\n")
+}
+
+# credible intervals for e)
+quantile(var.values[, 1], probs = c(2.5, 97.5)/100)
+quantile(var.values[, 2], probs = c(2.5, 97.5)/100)
+quantile(var.values[, 3], probs = c(2.5, 97.5)/100)
